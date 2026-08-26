@@ -11,6 +11,7 @@ from app.providers.ollama import (
 )
 from app.providers.anthropic import AnthropicProvider
 from app.providers.claude_agent import ClaudeAgentConfigurationError, ClaudeAgentProvider
+import app.providers.claude_agent as claude_agent_module
 from app.providers.factory import create_provider
 
 
@@ -103,3 +104,21 @@ def test_factory_selects_claude_agent_provider() -> None:
     provider = create_provider(Settings(llm_provider="claude_agent", anthropic_api_key="test-key"))
 
     assert isinstance(provider, ClaudeAgentProvider)
+
+
+@pytest.mark.anyio
+async def test_claude_agent_extracts_text_without_network_call(monkeypatch) -> None:
+    async def fake_query(*, prompt: str, options):
+        assert prompt == "grounded prompt"
+        assert options.max_turns == 1
+        assert options.allowed_tools == []
+        yield claude_agent_module.AssistantMessage(
+            [claude_agent_module.TextBlock("SDK answer")], model="claude-test"
+        )
+
+    monkeypatch.setattr(claude_agent_module, "query", fake_query)
+    settings = Settings(anthropic_api_key="test-key", anthropic_model="claude-test")
+
+    result = await ClaudeAgentProvider(settings).generate("grounded prompt")
+
+    assert result == "SDK answer"
