@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     llm_provider: str = "ollama"
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3:4b"
-    ollama_timeout_seconds: float = 120.0
+    ollama_timeout_seconds: float = 12.0
+    ollama_max_output_tokens: int = 384
     anthropic_api_key: str | None = None
     anthropic_url: str = "https://api.anthropic.com"
     anthropic_model: str = "claude-3-5-haiku-latest"

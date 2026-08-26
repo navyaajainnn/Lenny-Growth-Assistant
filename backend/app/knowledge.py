@@ -25,7 +25,7 @@ def tokenize(text: str) -> set[str]:
     return set(WORD_PATTERN.findall(text.lower()))
 
 
-def chunk_text(text: str, chunk_size: int = 1200, overlap: int = 200) -> list[str]:
+def chunk_text(text: str, chunk_size: int = 360, overlap: int = 60) -> list[str]:
     words = text.split()
     if not words:
         return []
@@ -73,7 +73,7 @@ async def ingest_transcripts(db: AsyncSession, directory: Path) -> int:
 
 
 class TranscriptRetriever:
-    def __init__(self, db: AsyncSession, limit: int = 4) -> None:
+    def __init__(self, db: AsyncSession, limit: int = 3) -> None:
         self._db = db
         self._limit = limit
 

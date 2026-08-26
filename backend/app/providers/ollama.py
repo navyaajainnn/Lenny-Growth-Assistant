@@ -32,6 +32,11 @@ class OllamaProvider:
             "model": self._settings.ollama_model,
             "prompt": prompt,
             "stream": False,
+            "think": False,
+            "options": {
+                "num_predict": self._settings.ollama_max_output_tokens,
+                "temperature": 0.2,
+            },
         }
         owns_client = self._client is None
         client = self._client or httpx.AsyncClient(

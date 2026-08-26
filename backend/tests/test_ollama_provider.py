@@ -40,6 +40,8 @@ async def test_generate_posts_prompt_and_returns_response() -> None:
         "model": "qwen3:4b",
         "prompt": "How do I improve activation?",
         "stream": False,
+        "think": False,
+        "options": {"num_predict": 384, "temperature": 0.2},
     }
 
 

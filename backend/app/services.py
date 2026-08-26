@@ -2,6 +2,7 @@ import uuid
 
 from app.knowledge import TranscriptRetriever
 from app.providers.base import LLMProvider
+from app.providers.base import LLMProviderError
 from app.repositories import SessionRepository
 
 
@@ -29,7 +30,7 @@ class ChatService:
         history = await self._repository.list_messages(session_id)
         retrieved = await self._retriever.retrieve(content)
         context = "\n\n".join(
-            f"Source: {chunk.source}\n{chunk.content}" for chunk in retrieved
+            f"Source: {chunk.source}\n{chunk.content[:1800]}" for chunk in retrieved
         )
         grounding = (
             "Use only the transcript context below. If it does not support an answer, "
@@ -38,11 +39,27 @@ class ChatService:
         )
         conversation = "\n".join(f"{message.role}: {message.content}" for message in history)
         prompt = f"{grounding}\n\nConversation:\n{conversation}"
-        response = await self._provider.generate(prompt)
         sources = [
             {"source": chunk.source, "score": chunk.score} for chunk in retrieved
         ]
+        try:
+            response = await self._provider.generate(prompt)
+        except LLMProviderError:
+            response = self._fallback_response(retrieved)
         assistant_message = await self._repository.add_message(
             session_id, "assistant", response, sources=sources
         )
         return user_message, assistant_message
+
+    @staticmethod
+    def _fallback_response(retrieved) -> str:
+        if not retrieved:
+            return "The available transcripts do not support an answer."
+        excerpts = "\n\n".join(
+            f"From `{chunk.source}`:\n{chunk.content[:700].strip()}"
+            for chunk in retrieved
+        )
+        return (
+            "The local model did not respond in time, so here are the most relevant "
+            "grounded transcript excerpts instead:\n\n" + excerpts
+        )

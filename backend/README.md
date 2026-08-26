@@ -38,7 +38,8 @@ Never commit `.env`; it is ignored by git. Ollama requires no API key; the optio
 | `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/lenny_growth_assistant` | Async PostgreSQL connection string |
 | `OLLAMA_URL` | `http://localhost:11434` | Ollama server URL |
 | `OLLAMA_MODEL` | `qwen3:4b` | Local model name |
-| `OLLAMA_TIMEOUT_SECONDS` | `120` | Provider request timeout |
+| `OLLAMA_TIMEOUT_SECONDS` | `12` | Provider request timeout before grounded excerpt fallback |
+| `OLLAMA_MAX_OUTPUT_TOKENS` | `384` | Maximum local response length |
 | `FRONTEND_URL` | `http://localhost:5173` | Allowed browser origin |
 | `LLM_PROVIDER` | `ollama` | `ollama` or `anthropic` |
 | `ANTHROPIC_API_KEY` | empty | Optional cloud-provider secret |
@@ -106,7 +107,7 @@ Ingestion replaces the existing chunk index, making refreshes repeatable. Retrie
 python -m pytest
 ```
 
-The tests use an in-memory SQLite database and mocked HTTP/provider responses; they do not require PostgreSQL or Ollama. A live integration check can be performed with:
+If Ollama exceeds the timeout or is unavailable, the API returns a definite grounded response made from the retrieved transcript excerpts and still includes source metadata. The tests use an in-memory SQLite database and mocked HTTP/provider responses; they do not require PostgreSQL or Ollama. A live integration check can be performed with:
 
 ```powershell
 Invoke-RestMethod http://localhost:11434/api/tags

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from app.api.routes.chat import get_database, get_provider
 from app.main import app
 from app.models import Base, TranscriptChunk
+from app.providers.base import LLMProviderError
 
 
 class FakeProvider:
@@ -16,6 +17,11 @@ class FakeProvider:
     async def generate(self, prompt: str) -> str:
         self.prompts.append(prompt)
         return "A grounded response"
+
+
+class FailingProvider:
+    async def generate(self, prompt: str) -> str:
+        raise LLMProviderError("provider timed out")
 
 
 @pytest.mark.anyio
@@ -95,6 +101,44 @@ async def test_message_for_unknown_session_returns_structured_error() -> None:
 
         assert response.status_code == 404
         assert response.json()["error"] == "session_not_found"
+    finally:
+        app.dependency_overrides.clear()
+        await engine.dispose()
+
+
+@pytest.mark.anyio
+async def test_message_returns_grounded_fallback_when_provider_fails() -> None:
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
+    async with factory() as session:
+        session.add(
+            TranscriptChunk(
+                source="experimentation/transcript.md",
+                content="Experimentation helps teams test assumptions and learn from results.",
+                position=0,
+            )
+        )
+        await session.commit()
+
+    async def override_database():
+        async with factory() as session:
+            yield session
+
+    app.dependency_overrides[get_database] = override_database
+    app.dependency_overrides[get_provider] = FailingProvider
+    try:
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+            session = await client.post("/sessions", json={})
+            session_id = session.json()["id"]
+            response = await client.post(
+                f"/sessions/{session_id}/messages", json={"content": "What is experimentation?"}
+            )
+
+        assert response.status_code == 200
+        assert "did not respond in time" in response.json()["content"]
+        assert response.json()["sources"][0]["source"] == "experimentation/transcript.md"
     finally:
         app.dependency_overrides.clear()
         await engine.dispose()
