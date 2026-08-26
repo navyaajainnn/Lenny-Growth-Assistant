@@ -21,7 +21,13 @@ class ClaudeAgentProvider:
             )
         self._settings = settings
 
-    async def generate(self, prompt: str) -> str:
+    async def generate(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: int | None = None,
+        timeout_seconds: float | None = None,
+    ) -> str:
         options = ClaudeAgentOptions(
             model=self._settings.anthropic_model,
             max_turns=1,

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import TranscriptChunk
@@ -70,6 +70,12 @@ async def ingest_transcripts(db: AsyncSession, directory: Path) -> int:
             count += 1
     await db.commit()
     return count
+
+
+async def transcript_chunk_count(db: AsyncSession) -> int:
+    """Return the number of indexed chunks without loading their text."""
+    result = await db.execute(select(func.count()).select_from(TranscriptChunk))
+    return int(result.scalar_one())
 
 
 class TranscriptRetriever:

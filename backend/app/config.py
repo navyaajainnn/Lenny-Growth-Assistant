@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -10,11 +11,14 @@ class Settings(BaseSettings):
     environment: str = "development"
     frontend_url: str = "http://localhost:5173"
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/lenny_growth_assistant"
+    transcript_directory: Path = Path(__file__).resolve().parents[2] / "data" / "transcripts"
     llm_provider: str = "ollama"
     ollama_url: str = "http://localhost:11434"
-    ollama_model: str = "qwen3:4b"
-    ollama_timeout_seconds: float = 12.0
-    ollama_max_output_tokens: int = 384
+    ollama_model: str = "qwen2.5:1.5b"
+    ollama_timeout_seconds: float = 60.0
+    ollama_max_output_tokens: int = 512
+    ollama_artifact_timeout_seconds: float = 180.0
+    ollama_artifact_max_output_tokens: int = 1800
     anthropic_api_key: str | None = None
     anthropic_url: str = "https://api.anthropic.com"
     anthropic_model: str = "claude-3-5-haiku-latest"

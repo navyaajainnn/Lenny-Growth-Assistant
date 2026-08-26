@@ -27,21 +27,27 @@ class OllamaProvider:
         self._settings = settings
         self._client = client
 
-    async def generate(self, prompt: str) -> str:
+    async def generate(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: int | None = None,
+        timeout_seconds: float | None = None,
+    ) -> str:
         payload = {
             "model": self._settings.ollama_model,
             "prompt": prompt,
             "stream": False,
             "think": False,
             "options": {
-                "num_predict": self._settings.ollama_max_output_tokens,
+                "num_predict": max_output_tokens or self._settings.ollama_max_output_tokens,
                 "temperature": 0.2,
             },
         }
         owns_client = self._client is None
         client = self._client or httpx.AsyncClient(
             base_url=self._settings.ollama_url,
-            timeout=self._settings.ollama_timeout_seconds,
+            timeout=timeout_seconds or self._settings.ollama_timeout_seconds,
         )
 
         try:

@@ -3,7 +3,13 @@ from pathlib import Path
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app.knowledge import TranscriptRetriever, chunk_text, ingest_transcripts, load_transcript_files
+from app.knowledge import (
+    TranscriptRetriever,
+    chunk_text,
+    ingest_transcripts,
+    load_transcript_files,
+    transcript_chunk_count,
+)
 from app.models import Base, TranscriptChunk
 
 
@@ -40,6 +46,7 @@ async def test_ingestion_and_retrieval_return_relevant_source(tmp_path: Path) ->
 
     async with factory() as session:
         assert await ingest_transcripts(session, tmp_path) == 1
+        assert await transcript_chunk_count(session) == 1
         matches = await TranscriptRetriever(session).retrieve("improves activation")
 
     assert matches[0].source == "activation.md"

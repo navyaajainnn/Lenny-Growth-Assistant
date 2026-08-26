@@ -5,7 +5,7 @@ An AI research desk for grounded product and growth questions from Lenny's Podca
 ## Current implementation
 
 - FastAPI backend with PostgreSQL sessions and messages
-- Local Ollama support using `qwen3:4b` by default
+- Local Ollama support using `qwen2.5:1.5b` by default
 - Optional Anthropic provider selected with `LLM_PROVIDER`
 - Official Claude Agent SDK provider selected with `LLM_PROVIDER=claude_agent`
 - Transcript ingestion, lexical retrieval, and source metadata
@@ -15,7 +15,7 @@ An AI research desk for grounded product and growth questions from Lenny's Podca
 
 ## Run locally
 
-Start PostgreSQL and Ollama, then follow [backend/README.md](backend/README.md) for Python setup, schema initialization, transcript ingestion, and API commands. Run the frontend with:
+Start PostgreSQL and Ollama, then follow [backend/README.md](backend/README.md) for Python setup and API commands. The backend automatically indexes the transcript archive when the database index is empty. Run the frontend with:
 
 ```powershell
 cd frontend
@@ -40,7 +40,7 @@ docker compose up --build
 The frontend runs at http://localhost:5173 and API docs at http://localhost:8000/docs.
 Compose uses `local-dev-only` for the disposable local database by default and exposes it on host port `5433` to avoid conflicts with an existing PostgreSQL service. Set `POSTGRES_PASSWORD` from a secret manager before using this topology outside local development.
 
-After the stack is running, index the downloaded transcripts into the Compose database:
+On its first startup, Compose automatically indexes `/data/transcripts` into an empty database. To refresh the index after changing the archive, run:
 
 ```powershell
 docker compose run --rm backend python -m app.ingest /data/transcripts

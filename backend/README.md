@@ -1,6 +1,6 @@
 # Lenny Growth Assistant Backend
 
-Phase 3 provides the FastAPI foundation, asynchronous Ollama provider, independent chat sessions, PostgreSQL persistence, and a transcript knowledge base. It intentionally does not implement agent routing, cloud providers, frontend features, or artifact generation.
+This backend provides FastAPI session APIs, PostgreSQL persistence, grounded transcript retrieval, configurable local and cloud providers, and Markdown/HTML artifact generation for the Lenny Growth Assistant.
 
 ## Prerequisites
 
@@ -10,10 +10,10 @@ Phase 3 provides the FastAPI foundation, asynchronous Ollama provider, independe
 - The local model pulled with:
 
 ```powershell
-ollama pull qwen3:4b
+ollama pull qwen2.5:1.5b
 ```
 
-`qwen3:4b` is an implementation decision selected for the available development machine. The model and Ollama URL are configurable through environment variables.
+`qwen2.5:1.5b` is an implementation decision selected for the available development machine. It avoids the slow reasoning phase observed with `qwen3:4b`; the model and Ollama URL are configurable through environment variables.
 
 ## Setup
 
@@ -36,10 +36,13 @@ Never commit `.env`; it is ignored by git. Ollama requires no API key; the optio
 | `APP_NAME` | `Lenny Growth Assistant API` | FastAPI application title |
 | `ENVIRONMENT` | `development` | Environment label returned by health checks |
 | `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/lenny_growth_assistant` | Async PostgreSQL connection string |
+| `TRANSCRIPT_DIRECTORY` | repository `data/transcripts` directory | Transcript archive indexed when the database index is empty |
 | `OLLAMA_URL` | `http://localhost:11434` | Ollama server URL |
-| `OLLAMA_MODEL` | `qwen3:4b` | Local model name |
-| `OLLAMA_TIMEOUT_SECONDS` | `12` | Provider request timeout before grounded excerpt fallback |
-| `OLLAMA_MAX_OUTPUT_TOKENS` | `384` | Maximum local response length |
+| `OLLAMA_MODEL` | `qwen2.5:1.5b` | Local model name |
+| `OLLAMA_TIMEOUT_SECONDS` | `60` | Provider request timeout before grounded excerpt fallback |
+| `OLLAMA_MAX_OUTPUT_TOKENS` | `512` | Maximum local answer length |
+| `OLLAMA_ARTIFACT_TIMEOUT_SECONDS` | `180` | Longer timeout for the Ship 30 for 30 artifact skill |
+| `OLLAMA_ARTIFACT_MAX_OUTPUT_TOKENS` | `1800` | Output budget for the approximately 1,250-word artifact |
 | `FRONTEND_URL` | `http://localhost:5173` | Allowed browser origin |
 | `LLM_PROVIDER` | `ollama` | `ollama` or `anthropic` |
 | `ANTHROPIC_API_KEY` | empty | Optional cloud-provider secret |
@@ -99,7 +102,7 @@ Run ingestion after adding or refreshing transcripts:
 python -m app.ingest ..\data\transcripts
 ```
 
-Ingestion replaces the existing chunk index, making refreshes repeatable. Retrieval uses deterministic lexical term matching in Phase 3, and each assistant response includes the matching source filename and score in its `sources` field. The prompt explicitly instructs the local model to acknowledge when no transcript context supports an answer.
+The application automatically performs this ingestion at startup when `transcript_chunks` is empty; this covers a new local database and Docker Compose volume. It does not replace a non-empty index on restart. Ingestion replaces the existing chunk index when explicitly run, making refreshes repeatable. Retrieval uses deterministic lexical term matching in Phase 3, and each assistant response includes the matching source filename and score in its `sources` field. The prompt explicitly instructs the local model to acknowledge when no transcript context supports an answer.
 
 ## Tests
 
@@ -112,6 +115,21 @@ If Ollama exceeds the timeout or is unavailable, the API returns a definite grou
 ```powershell
 Invoke-RestMethod http://localhost:11434/api/tags
 ```
+
+## Manual UI test plan
+
+1. Start the Compose stack and open http://localhost:5173.
+2. Ask `How can a product team improve activation?`; verify an answer and one or more source chips appear.
+3. Send a follow-up such as `Give me three actions for this week`; verify the assistant uses the same session context.
+4. Click **Markdown** then **Generate**; verify a rendered document appears in the Artifact Viewer. On CPU-only machines this may take one to two minutes.
+5. Click **HTML** then **Generate**; verify the result renders in the sandboxed iframe and does not navigate the page.
+6. Ask an unrelated question, such as `What is the best carbonara recipe?`; verify the assistant acknowledges that the archive does not support an answer.
+
+## Troubleshooting
+
+- If answers show grounded excerpts instead of a written response, the local model exceeded its timeout. Check that Ollama is running and that `qwen2.5:1.5b` is installed with `ollama pull qwen2.5:1.5b`.
+- If a local Ollama server has been running for a long time and generation stalls, restart it, then retry the request.
+- If the browser shows a database error, use only one backend on port 8000. Compose is reached at `http://localhost:8000`; the frontend is configured for that address.
 
 The official Claude Agent SDK is optional and is selected with `LLM_PROVIDER=claude_agent`. It requires an Anthropic credential and may incur usage charges. The default `LLM_PROVIDER=ollama` path remains local and free of Anthropic charges.
 

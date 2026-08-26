@@ -13,7 +13,7 @@ class ArtifactProvider:
     def __init__(self) -> None:
         self.prompts: list[str] = []
 
-    async def generate(self, prompt: str) -> str:
+    async def generate(self, prompt: str, **_: object) -> str:
         self.prompts.append(prompt)
         if len(self.prompts) == 2:
             assert "ship_30_for_30" in prompt or "Ship 30 for 30" in prompt

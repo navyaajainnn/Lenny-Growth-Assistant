@@ -11,6 +11,7 @@ from app.database import DatabaseUnavailableError
 from app.providers.base import LLMProviderError
 from app.providers.ollama import OllamaResponseError, OllamaTimeoutError
 from app.services import SessionNotFoundError
+from app.start import start as initialize_application
 
 logger = logging.getLogger("lenny_growth_assistant")
 
@@ -40,6 +41,12 @@ if not logger.handlers:
 def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(title=settings.app_name)
+
+    @application.on_event("startup")
+    async def initialize_knowledge_base() -> None:
+        """Initialize storage and seed a new transcript index for every run mode."""
+        await initialize_application()
+
     @application.middleware("http")
     async def request_logging(request: Request, call_next):
         started = time.perf_counter()

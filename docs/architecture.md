@@ -24,7 +24,7 @@ Requests use Pydantic validation. Provider, database, timeout, and missing-sessi
 
 ## Ingestion and retrieval
 
-`python -m app.ingest <directory>` loads transcript Markdown/text/JSON files, splits them into overlapping chunks, and replaces the PostgreSQL chunk index. Phase 3 uses deterministic lexical retrieval. Each result retains its relative source path and score, which is returned with assistant messages.
+`python -m app.ingest <directory>` loads transcript Markdown/text/JSON files, splits them into overlapping chunks, and replaces the PostgreSQL chunk index. The backend also seeds an empty index automatically on startup. Retrieval uses deterministic lexical matching. Each result retains its relative source path and score, which is returned with assistant messages.
 
 ## Agent and model routing
 
@@ -32,7 +32,7 @@ The application-level routing boundary is `create_provider()`, and all API route
 
 ## Security
 
-Generated HTML is untrusted. The frontend renders it inside an iframe with an empty `sandbox` attribute, which blocks scripts, forms, navigation, and same-origin access. The prompt also forbids scripts, event handlers, and external resources. Markdown is rendered by ReactMarkdown rather than injected with `innerHTML`.
+Generated HTML is untrusted. The frontend renders it inside an iframe with an empty `sandbox` attribute, which blocks scripts, forms, navigation, and same-origin access. The prompt also forbids scripts, event handlers, and external resources. Markdown is rendered by ReactMarkdown rather than injected with `innerHTML`. Model timeouts return grounded source excerpts for chat and a safe grounded-notes artifact instead of exposing an unhandled failure.
 
 ## Deployment topology
 

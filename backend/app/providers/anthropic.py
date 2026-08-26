@@ -29,11 +29,17 @@ class AnthropicProvider:
         self._settings = settings
         self._client = client
 
-    async def generate(self, prompt: str) -> str:
+    async def generate(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: int | None = None,
+        timeout_seconds: float | None = None,
+    ) -> str:
         owns_client = self._client is None
         client = self._client or httpx.AsyncClient(
             base_url=self._settings.anthropic_url,
-            timeout=self._settings.anthropic_timeout_seconds,
+            timeout=timeout_seconds or self._settings.anthropic_timeout_seconds,
         )
         try:
             response = await client.post(
@@ -44,7 +50,7 @@ class AnthropicProvider:
                 },
                 json={
                     "model": self._settings.anthropic_model,
-                    "max_tokens": 2048,
+                    "max_tokens": max_output_tokens or 2048,
                     "messages": [{"role": "user", "content": prompt}],
                 },
             )

@@ -41,7 +41,7 @@ async def test_generate_posts_prompt_and_returns_response() -> None:
         "prompt": "How do I improve activation?",
         "stream": False,
         "think": False,
-        "options": {"num_predict": 384, "temperature": 0.2},
+        "options": {"num_predict": 512, "temperature": 0.2},
     }
 
 

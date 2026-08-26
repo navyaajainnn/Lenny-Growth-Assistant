@@ -56,8 +56,9 @@ async def create_artifact(
     request: CreateArtifactRequest,
     db: AsyncSession = Depends(get_database),
     provider: LLMProvider = Depends(get_provider),
+    settings: Settings = Depends(get_settings),
 ) -> ArtifactResponse:
     artifact = await ArtifactService(
-        SessionRepository(db), provider, TranscriptRetriever(db)
+        SessionRepository(db), provider, TranscriptRetriever(db), settings
     ).create(session_id, request.format)
     return ArtifactResponse.model_validate(artifact, from_attributes=True)

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+// Docker Desktop exposes the Compose backend on localhost. Using 127.0.0.1
+// can route requests to an unrelated locally running Uvicorn process.
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 async function api(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
@@ -70,7 +72,7 @@ export function App() {
     <main className="shell">
       <header className="topbar">
         <div className="brand"><span className="brand-mark">LG</span><div><p className="eyebrow">FIELD NOTES / 01</p><h1>Lenny Growth Assistant</h1></div></div>
-        <div className="status"><span className="status-dot" /> Local knowledge base <strong>qwen3:4b</strong></div>
+        <div className="status"><span className="status-dot" /> Local knowledge base <strong>qwen2.5:1.5b</strong></div>
       </header>
       <section className="workspace">
         <div className="conversation panel">

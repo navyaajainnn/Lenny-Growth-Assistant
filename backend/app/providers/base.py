@@ -6,5 +6,11 @@ class LLMProviderError(Exception):
 
 
 class LLMProvider(Protocol):
-    async def generate(self, prompt: str) -> str:
+    async def generate(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: int | None = None,
+        timeout_seconds: float | None = None,
+    ) -> str:
         """Generate text from a prompt."""

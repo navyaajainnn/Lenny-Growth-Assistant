@@ -36,7 +36,7 @@ Excluded from the current implementation: authentication, multi-tenant authoriza
 - Assistant responses expose retrieved source metadata.
 - Provider selection changes through environment configuration.
 - HTML artifacts render in an isolated viewer.
-- Database, provider, and timeout failures produce structured errors.
+- Database and provider failures produce structured errors; model timeouts preserve grounding through source-excerpt fallbacks.
 
 ## Risks and trade-offs
 
