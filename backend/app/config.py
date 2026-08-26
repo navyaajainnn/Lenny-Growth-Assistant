@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     app_name: str = "Lenny Growth Assistant API"
     environment: str = "development"
+    frontend_url: str = "http://localhost:5173"
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/lenny_growth_assistant"
     llm_provider: str = "ollama"
     ollama_url: str = "http://localhost:11434"

@@ -19,3 +19,5 @@ backend/data/
 data/transcripts/*
 !data/transcripts/.gitkeep
 assignment/*.docx
+frontend/node_modules/
+frontend/dist/

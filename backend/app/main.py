@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
@@ -12,6 +13,13 @@ from app.services import SessionNotFoundError
 def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(title=settings.app_name)
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=[settings.frontend_url],
+        allow_credentials=False,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type"],
+    )
     application.include_router(chat_router)
 
     @application.get("/health", tags=["health"])
