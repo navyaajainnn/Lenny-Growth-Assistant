@@ -38,6 +38,7 @@ docker compose up --build
 ```
 
 The frontend runs at http://localhost:5173 and API docs at http://localhost:8000/docs.
+Compose uses `local-dev-only` for the disposable local database by default. Set `POSTGRES_PASSWORD` from a secret manager before using this topology outside local development.
 
 ## Documentation
 

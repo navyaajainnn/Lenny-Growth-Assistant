@@ -3,7 +3,7 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-dev-only}
       POSTGRES_DB: lenny_growth_assistant
     ports:
       - "5432:5432"
