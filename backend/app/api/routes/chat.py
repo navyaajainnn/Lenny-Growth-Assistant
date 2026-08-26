@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.artifact_service import ArtifactService
-from app.database import DatabaseUnavailableError, get_session_factory
+from app.database import get_session_factory
 from app.knowledge import TranscriptRetriever
 from app.providers.base import LLMProvider
 from app.providers.factory import create_provider
@@ -24,13 +24,8 @@ def get_provider(settings: Settings = Depends(get_settings)) -> LLMProvider:
 async def get_database(
     settings: Settings = Depends(get_settings),
 ) -> AsyncIterator[AsyncSession]:
-    try:
-        async with get_session_factory(settings.database_url)() as session:
-            yield session
-    except DatabaseUnavailableError:
-        raise
-    except Exception as error:
-        raise DatabaseUnavailableError("Database connection failed") from error
+    async with get_session_factory(settings.database_url)() as session:
+        yield session
 
 
 @router.post("", response_model=SessionResponse, status_code=201)

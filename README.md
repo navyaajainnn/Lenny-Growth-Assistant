@@ -38,7 +38,13 @@ docker compose up --build
 ```
 
 The frontend runs at http://localhost:5173 and API docs at http://localhost:8000/docs.
-Compose uses `local-dev-only` for the disposable local database by default. Set `POSTGRES_PASSWORD` from a secret manager before using this topology outside local development.
+Compose uses `local-dev-only` for the disposable local database by default and exposes it on host port `5433` to avoid conflicts with an existing PostgreSQL service. Set `POSTGRES_PASSWORD` from a secret manager before using this topology outside local development.
+
+After the stack is running, index the downloaded transcripts into the Compose database:
+
+```powershell
+docker compose run --rm backend python -m app.ingest /data/transcripts
+```
 
 ## Documentation
 

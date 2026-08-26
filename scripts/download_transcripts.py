@@ -16,9 +16,7 @@ def main() -> None:
             ["git", "clone", "--depth", "1", REPOSITORY, str(checkout)],
             check=True,
         )
-        if destination.exists():
-            shutil.rmtree(destination)
-        destination.mkdir(parents=True)
+        destination.mkdir(parents=True, exist_ok=True)
         for source in (checkout / "episodes").rglob("transcript.md"):
             target = destination / source.relative_to(checkout / "episodes")
             target.parent.mkdir(parents=True, exist_ok=True)
