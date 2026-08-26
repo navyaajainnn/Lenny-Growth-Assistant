@@ -112,6 +112,8 @@ The tests use an in-memory SQLite database and mocked HTTP/provider responses; t
 Invoke-RestMethod http://localhost:11434/api/tags
 ```
 
+The official Claude Agent SDK is optional and is selected with `LLM_PROVIDER=claude_agent`. It requires an Anthropic credential and may incur usage charges. The default `LLM_PROVIDER=ollama` path remains local and free of Anthropic charges.
+
 ## Extending the provider layer
 
 API routes depend on the `LLMProvider` protocol rather than provider-specific details. Set `LLM_PROVIDER=claude_agent` with `ANTHROPIC_API_KEY` to use the official Claude Agent SDK. The adapter is deliberately limited to one turn with no tools enabled; transcript context is retrieved by the application and passed into the prompt. Ollama remains the default. Cloud fallback is intentionally not automatic to avoid unexpected data sharing.

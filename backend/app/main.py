@@ -15,6 +15,28 @@ from app.services import SessionNotFoundError
 logger = logging.getLogger("lenny_growth_assistant")
 
 
+class JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        import json
+
+        payload = {
+            "message": record.getMessage(),
+            "level": record.levelname,
+            "logger": record.name,
+        }
+        for key in ("method", "path", "status_code", "duration_ms"):
+            if hasattr(record, key):
+                payload[key] = getattr(record, key)
+        return json.dumps(payload)
+
+
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(JsonFormatter())
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(title=settings.app_name)

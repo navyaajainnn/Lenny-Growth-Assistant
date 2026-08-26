@@ -23,6 +23,14 @@ npm install
 npm run dev
 ```
 
+Download the public transcript archive before ingestion:
+
+```powershell
+python scripts/download_transcripts.py
+cd backend
+python -m app.ingest ..\data\transcripts
+```
+
 Or start PostgreSQL, backend, and frontend together with:
 
 ```powershell
