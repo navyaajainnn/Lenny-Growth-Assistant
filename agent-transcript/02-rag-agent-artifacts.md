@@ -1,6 +1,3 @@
-## 02 — `agent-transcript/02-implementation.md`
-
-```markdown
 # Agent Development Log 02 — Core Implementation
 
 ## Objective

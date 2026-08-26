@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
-// Docker Desktop exposes the Compose backend on localhost. Using 127.0.0.1
-// can route requests to an unrelated locally running Uvicorn process.
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 async function api(path, options = {}) {

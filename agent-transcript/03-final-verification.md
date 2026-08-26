@@ -1,6 +1,3 @@
-## 03 — `agent-transcript/03-verification.md`
-
-```markdown
 # Agent Development Log 03 — Verification, Corrections, and Handoff
 
 ## Objective
