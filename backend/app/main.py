@@ -1,3 +1,6 @@
+import logging
+import time
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -9,10 +12,26 @@ from app.providers.base import LLMProviderError
 from app.providers.ollama import OllamaResponseError, OllamaTimeoutError
 from app.services import SessionNotFoundError
 
+logger = logging.getLogger("lenny_growth_assistant")
+
 
 def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(title=settings.app_name)
+    @application.middleware("http")
+    async def request_logging(request: Request, call_next):
+        started = time.perf_counter()
+        response = await call_next(request)
+        logger.info(
+            "request_completed",
+            extra={
+                "method": request.method,
+                "path": request.url.path,
+                "status_code": response.status_code,
+                "duration_ms": round((time.perf_counter() - started) * 1000, 2),
+            },
+        )
+        return response
     application.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.frontend_url],

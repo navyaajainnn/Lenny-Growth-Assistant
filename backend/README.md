@@ -27,7 +27,7 @@ Copy-Item .env.example .env
 python -m app.init_db
 ```
 
-Never commit `.env`; it is ignored by git. Phase 1 requires no API keys or secrets.
+Never commit `.env`; it is ignored by git. Ollama requires no API key; the optional Anthropic key belongs only in local environment configuration or a secret manager.
 
 ## Configuration
 
@@ -39,6 +39,20 @@ Never commit `.env`; it is ignored by git. Phase 1 requires no API keys or secre
 | `OLLAMA_URL` | `http://localhost:11434` | Ollama server URL |
 | `OLLAMA_MODEL` | `qwen3:4b` | Local model name |
 | `OLLAMA_TIMEOUT_SECONDS` | `120` | Provider request timeout |
+| `FRONTEND_URL` | `http://localhost:5173` | Allowed browser origin |
+| `LLM_PROVIDER` | `ollama` | `ollama` or `anthropic` |
+| `ANTHROPIC_API_KEY` | empty | Optional cloud-provider secret |
+| `ANTHROPIC_MODEL` | `claude-3-5-haiku-latest` | Optional cloud model |
+
+## Full stack startup
+
+Docker Compose starts PostgreSQL, the backend, and the frontend. Ollama must already be running on the host:
+
+```powershell
+docker compose up --build
+```
+
+Open http://localhost:5173. The backend API and docs are available at http://localhost:8000/docs.
 
 ## Run
 
