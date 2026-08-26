@@ -43,3 +43,13 @@ class TranscriptChunk(Base):
     source: Mapped[str] = mapped_column(String(500))
     content: Mapped[str] = mapped_column(Text)
     position: Mapped[int] = mapped_column()
+
+
+class Artifact(Base):
+    __tablename__ = "artifacts"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    session_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("chat_sessions.id", ondelete="CASCADE"))
+    format: Mapped[str] = mapped_column(String(20))
+    content: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

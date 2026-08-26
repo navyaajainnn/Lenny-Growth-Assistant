@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import DatabaseUnavailableError
-from app.models import ChatSession, Message
+from app.models import Artifact, ChatSession, Message
 
 DATABASE_OPERATION_FAILED = "Database operation failed"
 
@@ -58,5 +58,15 @@ class SessionRepository:
                 select(Message).where(Message.session_id == session_id).order_by(Message.created_at, Message.id)
             )
             return list(result.scalars())
+        except SQLAlchemyError as error:
+            raise DatabaseUnavailableError(DATABASE_OPERATION_FAILED) from error
+
+    async def add_artifact(self, session_id: uuid.UUID, output_format: str, content: str) -> Artifact:
+        try:
+            artifact = Artifact(session_id=session_id, format=output_format, content=content)
+            self._db.add(artifact)
+            await self._db.commit()
+            await self._db.refresh(artifact)
+            return artifact
         except SQLAlchemyError as error:
             raise DatabaseUnavailableError(DATABASE_OPERATION_FAILED) from error

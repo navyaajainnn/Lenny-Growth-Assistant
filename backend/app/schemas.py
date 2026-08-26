@@ -31,3 +31,15 @@ class MessageResponse(BaseModel):
 class ErrorResponse(BaseModel):
     error: str
     message: str
+
+
+class CreateArtifactRequest(BaseModel):
+    format: Literal["markdown", "html"] = "markdown"
+
+
+class ArtifactResponse(BaseModel):
+    id: uuid.UUID
+    session_id: uuid.UUID
+    format: Literal["markdown", "html"]
+    content: str
+    created_at: datetime
