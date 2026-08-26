@@ -114,4 +114,4 @@ Invoke-RestMethod http://localhost:11434/api/tags
 
 ## Extending the provider layer
 
-API routes depend on the `LLMProvider` protocol rather than Ollama-specific details. A future cloud provider can implement `generate(prompt)` and be selected through application configuration without changing the route layer. Cloud fallback is intentionally not included in Phase 1; its data-sharing and failure semantics should be decided before implementation.
+API routes depend on the `LLMProvider` protocol rather than provider-specific details. Set `LLM_PROVIDER=claude_agent` with `ANTHROPIC_API_KEY` to use the official Claude Agent SDK. The adapter is deliberately limited to one turn with no tools enabled; transcript context is retrieved by the application and passed into the prompt. Ollama remains the default. Cloud fallback is intentionally not automatic to avoid unexpected data sharing.

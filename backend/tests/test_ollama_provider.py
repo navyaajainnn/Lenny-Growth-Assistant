@@ -10,6 +10,8 @@ from app.providers.ollama import (
     OllamaTimeoutError,
 )
 from app.providers.anthropic import AnthropicProvider
+from app.providers.claude_agent import ClaudeAgentConfigurationError, ClaudeAgentProvider
+from app.providers.factory import create_provider
 
 
 def make_settings() -> Settings:
@@ -88,3 +90,16 @@ async def test_anthropic_provider_uses_configured_model_and_key() -> None:
     assert result == "Cloud answer"
     assert request_headers["x-api-key"] == "test-key"
     assert request_data["model"] == "claude-test"
+
+
+def test_claude_agent_requires_api_key() -> None:
+    provider_class = ClaudeAgentProvider
+    settings = Settings()
+    with pytest.raises(ClaudeAgentConfigurationError):
+        provider_class(settings)
+
+
+def test_factory_selects_claude_agent_provider() -> None:
+    provider = create_provider(Settings(llm_provider="claude_agent", anthropic_api_key="test-key"))
+
+    assert isinstance(provider, ClaudeAgentProvider)

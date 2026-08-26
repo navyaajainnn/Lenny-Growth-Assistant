@@ -7,6 +7,7 @@ An AI research desk for grounded product and growth questions from Lenny's Podca
 - FastAPI backend with PostgreSQL sessions and messages
 - Local Ollama support using `qwen3:4b` by default
 - Optional Anthropic provider selected with `LLM_PROVIDER`
+- Official Claude Agent SDK provider selected with `LLM_PROVIDER=claude_agent`
 - Transcript ingestion, lexical retrieval, and source metadata
 - Ship 30 for 30-style essay skill
 - Markdown and sandboxed HTML artifact generation
