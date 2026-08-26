@@ -9,9 +9,14 @@ class Settings(BaseSettings):
     app_name: str = "Lenny Growth Assistant API"
     environment: str = "development"
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/lenny_growth_assistant"
+    llm_provider: str = "ollama"
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3:4b"
     ollama_timeout_seconds: float = 120.0
+    anthropic_api_key: str | None = None
+    anthropic_url: str = "https://api.anthropic.com"
+    anthropic_model: str = "claude-3-5-haiku-latest"
+    anthropic_timeout_seconds: float = 120.0
 
     model_config = SettingsConfigDict(
         env_file=".env",

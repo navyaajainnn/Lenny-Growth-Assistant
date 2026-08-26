@@ -8,7 +8,7 @@ from app.config import Settings, get_settings
 from app.database import DatabaseUnavailableError, get_session_factory
 from app.knowledge import TranscriptRetriever
 from app.providers.base import LLMProvider
-from app.providers.ollama import OllamaProvider
+from app.providers.factory import create_provider
 from app.repositories import SessionRepository
 from app.schemas import CreateMessageRequest, CreateSessionRequest, MessageResponse, SessionResponse
 from app.services import ChatService
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/sessions", tags=["sessions"])
 
 
 def get_provider(settings: Settings = Depends(get_settings)) -> LLMProvider:
-    return OllamaProvider(settings)
+    return create_provider(settings)
 
 
 async def get_database(
